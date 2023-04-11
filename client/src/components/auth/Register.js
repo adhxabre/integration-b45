@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
-import { Alert } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Alert } from "react-bootstrap";
+import { useMutation } from "react-query";
+import { API } from "../../config/api";
 
 export default function Register() {
-  const title = 'Register';
-  document.title = 'DumbMerch | ' + title;
+  const title = "Register";
+  document.title = "DumbMerch | " + title;
 
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [message, setMessage] = useState(null);
 
   const { name, email, password } = form;
@@ -16,11 +23,41 @@ export default function Register() {
     });
   };
 
+  const handleSubmit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
+
+      const response = await API.post("/register", form);
+
+      console.log("register success : ", response);
+
+      const alert = (
+        <Alert variant="success" className="py-1">
+          Register Success!
+        </Alert>
+      );
+      setMessage(alert);
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+      });
+    } catch (err) {
+      const alert = (
+        <Alert variant="danger" className="py-1">
+          Register Failed!
+        </Alert>
+      );
+      setMessage(alert);
+      console.log("register failed : ", err);
+    }
+  });
+
   return (
     <div className="d-flex justify-content-center">
       <div className="card-auth p-4">
         <div
-          style={{ fontSize: '36px', lineHeight: '49px', fontWeight: '700' }}
+          style={{ fontSize: "36px", lineHeight: "49px", fontWeight: "700" }}
           className="mb-2"
         >
           Register

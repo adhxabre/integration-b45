@@ -1,14 +1,27 @@
-import React from 'react';
-import { Button, Col, Container, Row } from 'react-bootstrap';
-import { useNavigate } from 'react-router';
+import React, { useState } from "react";
+import { Button, Col, Container, Row } from "react-bootstrap";
+import { useNavigate } from "react-router";
+import { useMutation } from "react-query";
+import { API } from "../config/api";
 
-import NavbarAdmin from '../components/NavbarAdmin';
+import NavbarAdmin from "../components/NavbarAdmin";
 
 export default function AddProductAdmin() {
-  const title = 'Product admin';
-  document.title = 'DumbMerch | ' + title;
+  const title = "Product admin";
+  document.title = "DumbMerch | " + title;
 
   let navigate = useNavigate();
+
+  const [categories, setCategories] = useState([]);
+  const [preview, setPreview] = useState(null);
+  const [form, setForm] = useState({
+    image: "",
+    name: "",
+    desc: "",
+    price: "",
+    qty: "",
+    category_id: [],
+  });
 
   // For handle if category selected
   const handleChangeCategoryId = (e) => {
@@ -32,15 +45,46 @@ export default function AddProductAdmin() {
     setForm({
       ...form,
       [e.target.name]:
-        e.target.type === 'file' ? e.target.files : e.target.value,
+        e.target.type === "file" ? e.target.files : e.target.value,
     });
 
     // Create image url for preview
-    if (e.target.type === 'file') {
+    if (e.target.type === "file") {
       let url = URL.createObjectURL(e.target.files[0]);
       setPreview(url);
     }
   };
+
+  const handleSubmit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      const formData = new FormData();
+      formData.set("image", form.image[0], form.image[0].name);
+      formData.set("name", form.name);
+      formData.set("desc", form.desc);
+      formData.set("price", form.price);
+      formData.set("qty", form.qty);
+      let category_id = form.category_id.map((categoryId) =>
+        Number(categoryId)
+      );
+      formData.set(`category_id`, JSON.stringify(category_id));
+
+      // insert
+      const response = await API.post("/product", formData, config);
+      console.log("Add product success : ", response);
+
+      navigate("/product-admin");
+    } catch (err) {
+      console.log("add product failed : ", err);
+    }
+  });
 
   return (
     <>
@@ -57,9 +101,9 @@ export default function AddProductAdmin() {
                   <img
                     src={preview}
                     style={{
-                      maxWidth: '150px',
-                      maxHeight: '150px',
-                      objectFit: 'cover',
+                      maxWidth: "150px",
+                      maxHeight: "150px",
+                      objectFit: "cover",
                     }}
                     alt={preview}
                   />
@@ -87,7 +131,7 @@ export default function AddProductAdmin() {
                 name="desc"
                 onChange={handleChange}
                 className="input-edit-category mt-4"
-                style={{ height: '130px' }}
+                style={{ height: "130px" }}
               ></textarea>
               <input
                 type="number"
@@ -107,7 +151,7 @@ export default function AddProductAdmin() {
               <div className="card-form-input mt-4 px-2 py-1 pb-2">
                 <div
                   className="text-secondary mb-1"
-                  style={{ fontSize: '15px' }}
+                  style={{ fontSize: "15px" }}
                 >
                   Category
                 </div>
@@ -117,7 +161,7 @@ export default function AddProductAdmin() {
                       type="checkbox"
                       value={item.id}
                       onClick={handleChangeCategoryId}
-                    />{' '}
+                    />{" "}
                     {item.name}
                   </label>
                 ))}
