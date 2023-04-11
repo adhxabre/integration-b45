@@ -1,21 +1,30 @@
-import React from 'react';
-import { Button, Col, Container, Row, Table } from 'react-bootstrap';
-import { useQuery } from 'react-query';
-import { useNavigate } from 'react-router';
+import React, { useState, useEffect } from "react";
+import { Button, Col, Container, Row, Table } from "react-bootstrap";
+import { useNavigate } from "react-router";
 
-import DeleteData from '../components/modal/DeleteData';
-import NavbarAdmin from '../components/NavbarAdmin';
+import DeleteData from "../components/modal/DeleteData";
+import NavbarAdmin from "../components/NavbarAdmin";
 
-import imgEmpty from '../assets/empty.svg';
+import imgEmpty from "../assets/empty.svg";
+
+import { useQuery, useMutation } from "react-query";
+import { API } from "../config/api";
 
 export default function CategoryAdmin() {
   let navigate = useNavigate();
 
-  const title = 'Category admin';
-  document.title = 'DumbMerch | ' + title;
+  const title = "Category admin";
+  document.title = "DumbMerch | " + title;
 
-  let { data: categories, refetch } = useQuery('categoriesCache', async () => {
-    const response = await API.get('/categories');
+  const [idDelete, setIdDelete] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  let { data: categories, refetch } = useQuery("categoriesCache", async () => {
+    const response = await API.get("/categories");
     return response.data.data;
   });
 
@@ -24,8 +33,32 @@ export default function CategoryAdmin() {
   };
 
   const addCategory = () => {
-    navigate('/add-category');
+    navigate("/add-category");
   };
+
+  const handleDelete = (id) => {
+    setIdDelete(id);
+    handleShow();
+  };
+
+  const deleteById = useMutation(async (id) => {
+    try {
+      await API.delete(`/category/${id}`);
+      refetch();
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  useEffect(() => {
+    if (confirmDelete) {
+      // Close modal confirm delete data
+      handleClose();
+      // execute delete data by id function
+      deleteById.mutate(idDelete);
+      setConfirmDelete(null);
+    }
+  }, [confirmDelete]);
 
   return (
     <>
@@ -40,7 +73,7 @@ export default function CategoryAdmin() {
             <Button
               onClick={addCategory}
               className="btn-dark"
-              style={{ width: '100px' }}
+              style={{ width: "100px" }}
             >
               Add
             </Button>
@@ -70,7 +103,7 @@ export default function CategoryAdmin() {
                             handleEdit(item.id);
                           }}
                           className="btn-sm btn-success me-2"
-                          style={{ width: '135px' }}
+                          style={{ width: "135px" }}
                         >
                           Edit
                         </Button>
@@ -79,7 +112,7 @@ export default function CategoryAdmin() {
                             handleDelete(item.id);
                           }}
                           className="btn-sm btn-danger"
-                          style={{ width: '135px' }}
+                          style={{ width: "135px" }}
                         >
                           Delete
                         </Button>
@@ -93,7 +126,7 @@ export default function CategoryAdmin() {
                 <img
                   src={imgEmpty}
                   className="img-fluid"
-                  style={{ width: '40%' }}
+                  style={{ width: "40%" }}
                   alt="empty"
                 />
                 <div className="mt-3">No data category</div>
