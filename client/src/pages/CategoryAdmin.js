@@ -1,21 +1,22 @@
-import React from 'react';
-import { Button, Col, Container, Row, Table } from 'react-bootstrap';
-import { useQuery } from 'react-query';
-import { useNavigate } from 'react-router';
+import React from "react";
+import { Button, Col, Container, Row, Table } from "react-bootstrap";
+import { useQuery } from "react-query";
+import { API } from "../config/api";
+import { useNavigate } from "react-router";
 
-import DeleteData from '../components/modal/DeleteData';
-import NavbarAdmin from '../components/NavbarAdmin';
+import DeleteData from "../components/modal/DeleteData";
+import NavbarAdmin from "../components/NavbarAdmin";
 
-import imgEmpty from '../assets/empty.svg';
+import imgEmpty from "../assets/empty.svg";
 
 export default function CategoryAdmin() {
   let navigate = useNavigate();
 
-  const title = 'Category admin';
-  document.title = 'DumbMerch | ' + title;
+  const title = "Category admin";
+  document.title = "DumbMerch | " + title;
 
-  let { data: categories, refetch } = useQuery('categoriesCache', async () => {
-    const response = await API.get('/categories');
+  let { data: categories, refetch } = useQuery("categoriesCache", async () => {
+    const response = await API.get("/categories");
     return response.data.data;
   });
 
@@ -24,7 +25,7 @@ export default function CategoryAdmin() {
   };
 
   const addCategory = () => {
-    navigate('/add-category');
+    navigate("/add-category");
   };
 
   return (
@@ -40,7 +41,7 @@ export default function CategoryAdmin() {
             <Button
               onClick={addCategory}
               className="btn-dark"
-              style={{ width: '100px' }}
+              style={{ width: "100px" }}
             >
               Add
             </Button>
@@ -70,7 +71,7 @@ export default function CategoryAdmin() {
                             handleEdit(item.id);
                           }}
                           className="btn-sm btn-success me-2"
-                          style={{ width: '135px' }}
+                          style={{ width: "135px" }}
                         >
                           Edit
                         </Button>
@@ -79,7 +80,7 @@ export default function CategoryAdmin() {
                             handleDelete(item.id);
                           }}
                           className="btn-sm btn-danger"
-                          style={{ width: '135px' }}
+                          style={{ width: "135px" }}
                         >
                           Delete
                         </Button>
@@ -93,7 +94,7 @@ export default function CategoryAdmin() {
                 <img
                   src={imgEmpty}
                   className="img-fluid"
-                  style={{ width: '40%' }}
+                  style={{ width: "40%" }}
                   alt="empty"
                 />
                 <div className="mt-3">No data category</div>
